@@ -32,12 +32,13 @@ def fizz():
     n = int(selected_option)
     ret=""
     for i in range(1, n+1):
-        if(i%3==0):
-            ret += "Sammy "
-        if(i%5==0):
-            ret += "loves you "
-        if(i%3!=0 or i%5!=0):
-            ret += str(i) + " "
+        ret += "Sammy love you "
+        # if(i%3==0):
+        #     ret += "Fizz "
+        # if(i%5==0):
+        #     ret += "Buzz "
+        # if(i%3!=0 or i%5!=0):
+        #     ret += str(i) + " "
 
     resp.say(ret)
 
