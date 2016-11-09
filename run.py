@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, url_for, redirect
 import twilio.twiml
 from twilio.rest import TwilioRestClient
 from twilio.util import RequestValidator
+from flask.ext.sqlalchemy import SQLAlchemy
 
 account_sid = "AC78494ca3414bae8d75f682eb596a6fbb"
 auth_token = "d4c4cf67ee7e13c86169026fe5fdc412"
@@ -12,6 +13,8 @@ client = TwilioRestClient(account_sid, auth_token)
 validator = RequestValidator(auth_token)
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+db = SQLAlchemy(app)
 
 def validate(req):
     if not 'X-Twilio-Signature' in req.headers:
