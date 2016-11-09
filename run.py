@@ -1,9 +1,21 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 import twilio.twiml
+from twilio.rest import TwilioRestClient
+
+account_sid = "AC78494ca3414bae8d75f682eb596a6fbb"
+auth_token = "d4c4cf67ee7e13c86169026fe5fdc412"
+url_path = "https://moseleyfizz.herokuapp.com/call"
+phone = "+13158025153"
+
+client = TwilioRestClient(account_sid, auth_token)
 
 app = Flask(__name__)
 
-@app.route("/", methods=['GET', 'POST'])
+@app.route('/<string:page_name>/')
+def render_static(page_name):
+    return render_template('%s.html' % page_name)
+
+@app.route("/call", methods=['GET', 'POST'])
 def hello():
     """Respond to incoming requests."""
     resp = twilio.twiml.Response()
@@ -30,6 +42,13 @@ def fizz():
     resp.say(ret)
 
     return str(resp)
+
+@app.route('/make_call', methods=['POST'])
+def make_call():
+
+    call = client.calls.create(url=url_path,
+    to=request.values['phone'],
+    from_=phone)
 
 
 
