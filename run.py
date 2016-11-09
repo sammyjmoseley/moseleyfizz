@@ -8,8 +8,8 @@ def hello():
     """Respond to incoming requests."""
     resp = twilio.twiml.Response()
     
-    with resp.gather(numDigits=1, action='/fizz', method="POST") as g:
-        g.say("please enter a number")
+    with resp.gather(finishOnKey="#", action='/fizz', method="POST") as g:
+        g.say("please enter a number followed by pound")
 
     return str(resp)
 
@@ -17,8 +17,17 @@ def hello():
 def fizz():
     resp = twilio.twiml.Response()
     selected_option = request.values['Digits']
-    
-    resp.say("you entered " + selected_option)
+    n = int(selected_option)
+    ret=""
+    for i in range(1, n+1):
+        if(i%3==0):
+            ret += "Fizz "
+        if(i%5==0):
+            ret += "Buzz "
+        if(i%3!=0 or i%5!=0):
+            ret += str(i) + " "
+
+    resp.say(ret)
 
     return str(resp)
 
