@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 import twilio.twiml
 
 app = Flask(__name__)
@@ -16,7 +16,7 @@ def hello():
 @app.route('/fizz', methods=['POST'])
 def fizz():
     resp = twilio.twiml.Response()
-    selected_option = request.form['Digits']
+    selected_option = request.values['Digits']
     
     resp.say("you entered " + selected_option)
 
