@@ -33,9 +33,9 @@ def fizz():
     ret=""
     for i in range(1, n+1):
         if(i%3==0):
-            ret += "Fizz "
+            ret += "Sammy "
         if(i%5==0):
-            ret += "Buzz "
+            ret += "loves you "
         if(i%3!=0 or i%5!=0):
             ret += str(i) + " "
 
@@ -45,7 +45,6 @@ def fizz():
 
 @app.route('/make_call', methods=['POST'])
 def make_call():
-
     call = client.calls.create(url=url_path,
     to=request.values['phone'],
     from_=phone)
