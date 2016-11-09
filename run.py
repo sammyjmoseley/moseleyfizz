@@ -4,6 +4,7 @@ import os
 from twilio.rest import TwilioRestClient
 from twilio.util import RequestValidator
 from flask.ext.sqlalchemy import SQLAlchemy
+from CallRecord import CallRecord
 
 account_sid = "AC78494ca3414bae8d75f682eb596a6fbb"
 auth_token = "d4c4cf67ee7e13c86169026fe5fdc412"
@@ -28,9 +29,9 @@ def index():
 
 @app.route('/<string:page_name>/')
 def render_static(page_name):
-    return render_template('%s.html' % page_name)
+    return render_template('%s' % page_name)
 
-@app.route("/call", methods=['GET', 'POST'])
+@app.route("/call/", methods=['GET', 'POST'])
 def hello():
     if not validate(request):
         return redirect(url_for('index'))
@@ -40,7 +41,7 @@ def hello():
         g.say("please enter a number followed by pound", loop = 3)
     return str(resp)
 
-@app.route('/fizz', methods=['POST'])
+@app.route('/fizz/', methods=['POST'])
 def fizz():
     if not validate(request):
         return redirect(url_for('index'))
@@ -60,13 +61,40 @@ def fizz():
 
     return str(resp)
 
-@app.route('/make_call', methods=['POST'])
+@app.route('/make_call/', methods=['POST'])
 def make_call():
     call = client.calls.create(url=url_path,
     to=request.values['phone'],
     from_=phone)
 
     return redirect(url_for('index'))
+
+@app.route('/add/', methods=['POST'])
+def add():
+    call = CallRecord(request.values)
+    db.session.add(call)
+    db.session.commit()
+
+    return str(call.id)
+
+@app.route('/remove/<id>/', methods=['POST'])
+def remove(id):
+    call = CallRecord.query.filter_by(id=int(id))
+    if call is None:
+        return
+    else:
+        db.session.delete(call)
+        db.session.commit()
+        return
+
+@app.route('/listcalls/', methods=['GET'])
+def listcalls():
+    ls = CallRecord.query.order_by(CallRecord.id)
+    r = '['
+    for i in range(0, ls.count()):
+        r += str(ls[i]) + ','
+    r = r[:-1] + ']'
+    return r
 
 
 

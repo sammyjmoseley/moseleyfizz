@@ -1,4 +1,55 @@
-<form action="/make_call" method="post">
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+
+function dostuff() {
+	$.get( "/listcalls/", function( data ) {
+
+		var obj = JSON.parse(data);
+		$("#tblData tbody").append( "<tr>");
+		for (var key in obj[0]) {
+			
+			$("#tblData tbody").append( "<td>"+key+"</td>");
+		}
+		$("#tblData tbody").append( "</tr>");
+		// $("#tblData thead").append( "</tr>");
+  $("#result").text(obj[0].phone);
+});
+      // $('a#calculate').bind('click', function() {
+      //   $.getJSON('/listcalls/', function(data) {
+      //     $("#result").text("data");
+      //   });
+      //   return false;
+      // });
+    }
+</script>
+</head>
+<body>
+<form action="/make_call/" method="post">
   <input type="text" name="phone"></input>
-  <input type="submit" value="Signup"></input>
+  <input type="submit" value="submit"></input>
 </form>
+
+
+
+<div class="container">
+      <div class="header">
+        <h3 class="text-muted">How To Manage JSON Requests</h3>
+      </div>
+      <hr/>
+      <div>
+      <p>
+    <input type="text" size="5" name="a"> +
+    <input type="text" size="5" name="b"> =
+    <span id="result">?</span>
+    <p><a href="javascript:dostuff();" id="calculate">calculate server side</a>
+      </form>
+      </div>
+    </div>
+
+    
+<table id="tblData">	<thead>  </thead> <tbody> </tbody> </table>
+</body>
+</html>
