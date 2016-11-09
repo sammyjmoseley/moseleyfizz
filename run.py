@@ -21,7 +21,7 @@ def hello():
     resp = twilio.twiml.Response()
     
     with resp.gather(finishOnKey="#", action='/fizz', method="POST") as g:
-        g.say("please enter a number followed by pound")
+        g.say("please enter a number followed by pound", loop = 3)
 
     return str(resp)
 
