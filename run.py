@@ -15,6 +15,7 @@ def hello():
 
 @app.route('/fizz', methods=['POST'])
 def fizz():
+    resp = twilio.twiml.Response()
     selected_option = request.form['Digits']
     
     resp.say("you entered " + selected_option)
