@@ -8,8 +8,8 @@ def hello():
     """Respond to incoming requests."""
     resp = twilio.twiml.Response()
     
-    with resp.gather(numDigits=1, action=url_for('menu'), method="POST") as g:
-        g.play(url="http://howtodocs.s3.amazonaws.com/et-phone.mp3", loop=3)
+    with resp.gather(numDigits=1, action='/fizz', method="POST") as g:
+        g.say("please enter a number")
 
     return str(resp)
 
@@ -17,9 +17,9 @@ def hello():
 def fizz():
     selected_option = request.form['Digits']
     
-    resp.say("you entered " + selected_option);
+    resp.say("you entered " + selected_option)
 
-    return twiml(resp)
+    return str(resp)
 
 
 
