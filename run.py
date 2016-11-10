@@ -23,8 +23,6 @@ validator = RequestValidator(auth_token)
 app = Flask(__name__)
 from CallRecord import db
 
-app.logger.addHandler(logging.StreamHandler(sys.stdout))
-app.logger.setLevel(logging.ERROR)
 
 import logging
 
