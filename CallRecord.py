@@ -8,7 +8,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
 class CallRecord(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    idn = db.Column(db.Integer, primary_key=True)
     time = db.Column(db.DateTime)
     phone = db.Column(db.String(20))
     delay = db.Column(db.Integer)
@@ -39,10 +39,10 @@ class CallRecord(db.Model):
             self.number = int(arg['number'])
 
     def __repr__(self):
-        return '<id %r>' % self.id
+        return '<id %r>' % self.idn
 
     def __str__(self):
-        return "{"+ "\"id\" : "        + "\"" + str(self.id)+ "\"" +\
+        return "{"+ "\"id\" : "        + "\"" + str(self.idn)+ "\"" +\
                ","+ "\"time\" : "      + "\"" + str(self.time.strftime("%Y-%m-%d %H:%M:%S"))+ "\"" + \
                ","+ "\"phone\" : "     + str(self.phone)+\
                ","+ "\"delay\" : "     + str(self.delay)+\

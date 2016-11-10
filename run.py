@@ -63,13 +63,13 @@ def fizz(idn):
         return redirect(url_for('index'))
     resp = twilio.twiml.Response()
     selected_option = request.values['Digits']
-    rec = db.session.query(CallRecord).filter(CallRecord.id == idn).first()
+    rec = db.session.query(CallRecord).get(int(idn))
     n=1
     if(rec.number!=-1):
         n=rec.number
     else: #check the selected number is number
         n=int(selected_option)
-        db.session.query(CallRecord).filter(CallRecord.id == idn).update({'number': n})
+        db.session.query(CallRecord).get(int(idn)).update({'number': n})
         db.session.commit()
     ret=""
     for i in range(1, n+1):
@@ -92,15 +92,15 @@ def make_call():
     return 'sucess'
 
 def scheduledCall(call):
-    print "making call " + str(call.id)
-    call = client.calls.create(url=url_path+"call/"+str(call.id)+"/", to=call.phone, from_=phone)
-    db.session.query(CallRecord).filter(CallRecord.id == call.id).update({'completed': True})
+    print "making call " + str(call.idn)
+    # call = client.calls.create(url=url_path+"call/"+str(call.idn)+"/", to=call.phone, from_=phone)
+    db.session.query(CallRecord).filter(CallRecord.idn == call.idn).update({"completed": True})
     db.session.commit()
 
 def replayCall(call):
-    print "making replay call " + str(call.id)
-    call = client.calls.create(url=url_path+"fizz/"+str(call.id)+"/", to=call.phone, from_=phone)
-    db.session.query(CallRecord).filter(CallRecord.id == call.id).update({'completed': True})
+    print "making replay call " + str(call.idn)
+    # call = client.calls.create(url=url_path+"fizz/"+str(call.idn)+"/", to=call.phone, from_=phone)
+    db.session.query(CallRecord).filter(CallRecord.idn == call.idn).update({"completed": True})
     db.session.commit()
 
 @app.route('/add/', methods=['POST'])
@@ -110,11 +110,11 @@ def add():
     db.session.commit()
     time = call.time + timedelta(seconds=call.delay)
     sched.add_job(scheduledCall, run_date=time, args=[call])
-    return str(call.id)
+    return str(call.idn)
 
 @app.route('/delete/<idn>/', methods=['POST'])
 def remove(idn):
-    call = CallRecord.query.filter(CallRecord.id==int(idn)).first()
+    call = CallRecord.query.get(int(idn))
     if call is None:
         return 'error'
     else:
@@ -124,17 +124,17 @@ def remove(idn):
 
 @app.route('/replay/<idn>/', methods=['POST'])
 def replay(idn):
-    call = CallRecord.query.filter(CallRecord.id==int(idn)).first()
+    call = CallRecord.query.get(int(idn))
     new_call = CallRecord({'phone':call.phone,'number':call.number})
-    db.session.add(call)
+    db.session.add(new_call)
     db.session.commit()
-    replayCall(call)
+    replayCall(new_call)
     return 'success'
 
 
 @app.route('/listcalls/', methods=['GET'])
 def listcalls():
-    ls = CallRecord.query.order_by(CallRecord.id)
+    ls = CallRecord.query.order_by(CallRecord.idn)
     r = '['
     for i in range(0, ls.count()):
         r += str(ls[i]) + ','
