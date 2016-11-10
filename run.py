@@ -55,7 +55,7 @@ def hello(idn):
 
     resp = twilio.twiml.Response()
     with resp.gather(finishOnKey="#", action=url_path+'fizz/'+str(idn)+"/", method="POST") as g:
-        for(int i=0; i<3; i++):
+        for i in range(0, 3):
             g.say("please enter a number followed by pound")
             g.pause(length=3)    
         
