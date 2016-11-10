@@ -21,7 +21,7 @@ db = SQLAlchemy(app)
 def validate(req):
     if not 'X-Twilio-Signature' in req.headers:
         return False
-    return validator.validate(req.url_root, req.values, req.headers['X-Twilio-Signature'])
+    return validator.validate(req.url, req.values, req.headers['X-Twilio-Signature'])
 
 @app.route("/")
 def index():
