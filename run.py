@@ -5,10 +5,15 @@ from twilio.rest import TwilioRestClient
 from twilio.util import RequestValidator
 from flask.ext.sqlalchemy import SQLAlchemy
 from CallRecord import CallRecord
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime, timedelta
+
+sched = BackgroundScheduler()
+sched.start()
 
 account_sid = "AC78494ca3414bae8d75f682eb596a6fbb"
 auth_token = "d4c4cf67ee7e13c86169026fe5fdc412"
-url_path = "https://moseleyfizz.herokuapp.com/call/"
+url_path = "https://moseleyfizz.herokuapp.com/"
 phone = "+13158025153"
 
 client = TwilioRestClient(account_sid, auth_token)
@@ -38,11 +43,11 @@ def hello():
         return abort(401)
 
     resp = twilio.twiml.Response()
-    with resp.gather(finishOnKey="#", action='/fizz', method="POST") as g:
+    with resp.gather(finishOnKey="#", action=url_path+'/fizz/', method="POST") as g:
         g.say("please enter a number followed by pound", loop = 3)
     return str(resp)
 
-@app.route('/fizz/', methods=['POST'])
+@app.route('/fizz/', methods=['GET', 'POST'])
 def fizz():
     if not validate(request):
         return redirect(url_for('index'))
@@ -68,14 +73,23 @@ def make_call():
     to=request.values['phone'],
     from_=phone)
 
-    return redirect(url_for('index'))
+    return 'sucess'
+
+def scheduledCall(call):
+    print "making call"
+    call = client.calls.create(url=url_path+"/call/",
+    to=call.phone,
+    from_=phone)
+    call.completed=True
+    db.session.commit()
 
 @app.route('/add/', methods=['POST'])
 def add():
     call = CallRecord(request.values)
     db.session.add(call)
     db.session.commit()
-
+    time = call.time + timedelta(seconds=call.delay)
+    sched.add_job(scheduledCall, run_date=time, args=[call])
     return str(call.id)
 
 @app.route('/remove/<id>/', methods=['POST'])

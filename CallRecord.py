@@ -42,7 +42,7 @@ class CallRecord(db.Model):
         return '<id %r>' % self.id
 
     def __str__(self):
-        return "{"+ "\"id\" : "        + str(self.id)+ \
+        return "{"+ "\"id\" : "        + "\"" + str(self.id)+ "\"" +\
                ","+ "\"time\" : "      + "\"" + str(self.time)+ "\"" + \
                ","+ "\"phone\" : "     + str(self.phone)+\
                ","+ "\"delay\" : "     + str(self.delay)+\

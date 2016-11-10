@@ -3,53 +3,92 @@
 <head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script>
+var cols = ['time', 'phone', 'delay'];
+function loadtabledata(obj){
+	for(var i=0; i<obj.length; i++){
+			if($('#' + obj[i]['id']).length != 0){
+				for(var key in cols){
+					console.log(obj[i]);
+					document.getElementById(cols[key] + obj[i]['id']).innerHTML = obj[i][cols[key]];
+				}
+				if(obj[i]['completed']=='False')$("#replay" + obj[i]['id']).hide();
+				else $("#replay" + obj[i]['id']).show();
+			} else{
 
-function dostuff() {
-	$.get( "/listcalls/", function( data ) {
+				$("#tbl tbody").append( "<tr id=" +obj[i]['id'] +">");
+				for(var key in cols){
+					console.log(obj[i]);
+					$("#tbl tbody").append( "<td id=" + cols[key] + obj[i]['id'] + ">"+ obj[i][cols[key]] + "</td>");					
+				}
+				
+				$("#tbl tbody").append("<td id=delete" + obj[i]['id'] + "><a href=\"javascript:void();\">delete</a><td>");
 
-		var obj = JSON.parse(data);
-		$("#tblData tbody").append( "<tr>");
-		for (var key in obj[0]) {
-			
-			$("#tblData tbody").append( "<td>"+key+"</td>");
+				$("#tbl tbody").append("<td id=replay" + obj[i]['id'] + "><a href=\"javascript:void();\">replay</a><td>");
+
+				if(obj[i]['completed']=='False')$("#replay" + obj[i]['id']).hide();
+					
+				$("#tbl tbody").append( "</tr>");
+			}	
 		}
-		$("#tblData tbody").append( "</tr>");
-		// $("#tblData thead").append( "</tr>");
-  $("#result").text(obj[0].phone);
-});
-      // $('a#calculate').bind('click', function() {
-      //   $.getJSON('/listcalls/', function(data) {
-      //     $("#result").text("data");
-      //   });
-      //   return false;
-      // });
-    }
+}
+
+function refreshtable(){
+	$.get( "/listcalls/", function( data ) {
+		var cols = ['time', 'phone', 'delay']
+		var obj = JSON.parse(data);
+		
+		loadtabledata(obj);
+ 
+	});
+}
+
+function loadtable() {
+	$.get( "/listcalls/", function( data ) {
+		var obj = JSON.parse(data);
+		$("#tbl thead").append( "<tr>");
+		for (var key in cols) {
+			
+			$("#tbl thead").append( "<td>"+cols[key]+"</td>");
+		}
+		$("#tbl thead").append("<td>delete<td>");
+		$("#tbl thead").append("<td>replay<td>");
+		$("#tbl thead").append( "</tr>");
+
+		loadtabledata(obj);
+ 
+	});
+}
+
+function createCall(p_var, d_var){
+	$.post("/add/", {phone: p_var, delay:d_var}, function(result){});
+}
+
+function submit() {
+	var phone = document.getElementsByName('phone')[0].value;
+	var delay = document.getElementsByName('delay')[0].value;
+	createCall(phone, delay);
+}
+
+setInterval(function(){ refreshtable(); }, 3000);
+
+
+
 </script>
 </head>
 <body>
-<form action="/make_call/" method="post">
-  <input type="text" name="phone"></input>
-  <input type="submit" value="submit"></input>
-</form>
-
-
-
-<div class="container">
-      <div class="header">
-        <h3 class="text-muted">How To Manage JSON Requests</h3>
-      </div>
-      <hr/>
-      <div>
-      <p>
-    <input type="text" size="5" name="a"> +
-    <input type="text" size="5" name="b"> =
-    <span id="result">?</span>
-    <p><a href="javascript:dostuff();" id="calculate">calculate server side</a>
-      </form>
-      </div>
-    </div>
+<span>
+	<p>phone #:</p>
+  	<input type="text" name="phone"></input>
+  	<p>delay (min):</p>
+  	<input type="text" name="delay"></input>
+  	<button onclick="submit()">submit</button>
+</span>
 
     
-<table id="tblData">	<thead>  </thead> <tbody> </tbody> </table>
+<table id="tbl" onload=loadtable();>	<thead>  </thead> <tbody> </tbody> </table>
+
+<script>
+document.getElementById("tbl").ready(loadtable());
+</script
 </body>
 </html>
