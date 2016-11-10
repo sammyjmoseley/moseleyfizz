@@ -49,7 +49,7 @@ def render_static(page_name):
     return render_template('%s' % page_name)
 
 @app.route("/call/<idn>/", methods=['GET', 'POST'])
-def hello():
+def hello(idn):
     if not validate(request):
         return abort(401)
 
