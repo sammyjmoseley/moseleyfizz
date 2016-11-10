@@ -64,13 +64,13 @@ def fizz(idn):
         return redirect(url_for('index'))
     resp = twilio.twiml.Response()
     selected_option = request.values['Digits']
-    rec = db.session.query(CallRecord).get(int(idn))
+    rec = db.session.query(CallRecord).filter(CallRecord.idn == int(idn)).first()
     n=1
     if(rec.number!=-1):
         n=rec.number
     else: #check the selected number is number
         n=int(selected_option)
-        db.session.query(CallRecord).get(int(idn)).update({'number': n})
+        db.session.query(CallRecord).filter(CallRecord.idn == int(idn)).update({'number': n})
         db.session.commit()
     ret=""
     for i in range(1, n+1):
