@@ -54,7 +54,7 @@ def hello():
         return abort(401)
 
     resp = twilio.twiml.Response()
-    with resp.gather(finishOnKey="#", action=url_path+'/fizz/'+str(idn), method="POST") as g:
+    with resp.gather(finishOnKey="#", action=url_path+'fizz/'+str(idn), method="POST") as g:
         g.say("please enter a number followed by pound", loop = 3)
     return str(resp)
 
@@ -94,13 +94,13 @@ def make_call():
 
 def scheduledCall(call):
     print "making call " + str(call.id)
-    call = client.calls.create(url=url_path+"/call/"+str(call.id)+"/", to=call.phone, from_=phone)
+    call = client.calls.create(url=url_path+"call/"+str(call.id)+"/", to=call.phone, from_=phone)
     db.session.query(CallRecord).filter(CallRecord.id == call.id).update({'completed': True})
     db.session.commit()
 
 def replayCall(call):
     print "making replay call " + str(call.id)
-    call = client.calls.create(url=url_path+"/fizz/"+str(call.id)+"/", to=call.phone, from_=phone)
+    call = client.calls.create(url=url_path+"fizz/"+str(call.id)+"/", to=call.phone, from_=phone)
     db.session.query(CallRecord).filter(CallRecord.id == call.id).update({'completed': True})
     db.session.commit()
 
