@@ -64,7 +64,7 @@ def fizz(idn):
         return redirect(url_for('index'))
     resp = twilio.twiml.Response()
     selected_option = request.values['Digits']
-    rec = db.session.query(CallRecord).filter(CallRecord.idn == int(idn)).first()
+    rec = db.session.query(CallRecord).get(int(idn))
     n=1
     if(rec.number!=-1):
         n=rec.number
