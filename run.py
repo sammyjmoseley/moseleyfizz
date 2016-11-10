@@ -55,7 +55,11 @@ def hello(idn):
 
     resp = twilio.twiml.Response()
     with resp.gather(finishOnKey="#", action=url_path+'fizz/'+str(idn)+"/", method="POST") as g:
-        g.say("please enter a number followed by pound", loop = 3)
+        for(int i=0; i<3; i++):
+            g.say("please enter a number followed by pound")
+            g.pause(length=3)    
+        
+    resp.say("hanging up now")
     return str(resp)
 
 @app.route('/fizz/<idn>/', methods=['GET', 'POST'])
