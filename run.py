@@ -24,6 +24,16 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
+import logging
+
+log = logging.getLogger('apscheduler.executors.default')
+log.setLevel(logging.INFO)  # DEBUG
+
+fmt = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+h = logging.StreamHandler()
+h.setFormatter(fmt)
+log.addHandler(h)
+
 def validate(req):
     return True;
     if not 'X-Twilio-Signature' in req.headers:
@@ -83,14 +93,14 @@ def make_call():
     return 'sucess'
 
 def scheduledCall(call):
-    print "making call " + call.id
-    call = client.calls.create(url=url_path+"/call/"+call.id+"/", to=call.phone, from_=phone)
+    print "making call " + str(call.id)
+    call = client.calls.create(url=url_path+"/call/"+str(call.id)+"/", to=call.phone, from_=phone)
     db.session.query(CallRecord).filter(CallRecord.id == call.id).update({'completed': True})
     db.session.commit()
 
 def replayCall(call):
-    print "making replay call " + call.id 
-    call = client.calls.create(url=url_path+"/fizz/"+call.id+"/", to=call.phone, from_=phone)
+    print "making replay call " + str(call.id)
+    call = client.calls.create(url=url_path+"/fizz/"+str(call.id)+"/", to=call.phone, from_=phone)
     db.session.query(CallRecord).filter(CallRecord.id == call.id).update({'completed': True})
     db.session.commit()
 
