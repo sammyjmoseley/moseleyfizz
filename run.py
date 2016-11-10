@@ -93,14 +93,14 @@ def make_call():
     return 'sucess'
 
 def scheduledCall(idn):
-    call = db.session.query(CallRecord).filter(CallRecord.idn == idn).first()
+    call = db.session.query(CallRecord).get(int(idn))
     print "making call " + str(call.idn)
     call = client.calls.create(url=url_path+"call/"+str(call.idn)+"/", to=call.phone, from_=phone)
     db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
     db.session.commit()
 
 def replayCall(idn):
-    call = db.session.query(CallRecord).filter(CallRecord.idn == idn).first()
+    call = db.session.query(CallRecord).get(int(idn))
     print "making replay call " + str(call.idn)
     call = client.calls.create(url=url_path+"fizz/"+str(call.idn)+"/", to=call.phone, from_=phone)
     db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
@@ -112,7 +112,7 @@ def add():
     db.session.add(call)
     db.session.commit()
     time = call.time + timedelta(seconds=call.delay)
-    sched.add_job(scheduledCall, run_date=time, args=[call])
+    sched.add_job(scheduledCall, run_date=time, args=[call.idn])
     return str(call.idn)
 
 @app.route('/delete/<idn>/', methods=['POST'])
