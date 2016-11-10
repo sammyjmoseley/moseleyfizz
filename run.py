@@ -86,10 +86,9 @@ def fizz(idn):
     if not validate(request):
         return redirect(url_for('index'))
     rec = db.session.query(CallRecord).get(int(idn))
-    # db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
     if(rec==None):
         return redirect(url_for('inputcall'))
-    rec.update({"completed": True})
+    db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
     resp = twilio.twiml.Response()
     selected_option = 1 #default
     if 'Digits' in request.values:
