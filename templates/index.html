@@ -1,9 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+<style>
+.pad {
+	padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
 <script>
 var cols = ['time', 'phone', 'delay', 'number'];
 function loadtabledata(obj){
@@ -121,8 +130,8 @@ function deleteCall(id){
 }
 
 function submit() {
-	var phone = document.getElementsByName('phone')[0].value;
-	var delay = document.getElementsByName('delay')[0].value;
+	var phone = document.getElementById('phone').value;
+	var delay = document.getElementById('delay').value;
 	createCall(phone, delay);
 	refreshtable();
 }
@@ -134,17 +143,26 @@ setInterval(function(){ refreshtable(); }, 3000);
 </script>
 </head>
 <body>
-<span>
-	<p>phone #:</p>
-  	<input type="text" name="phone"></input>
-  	<p>delay (min):</p>
-  	<input type="text" name="delay"></input>
-  	<button onclick="submit()">submit</button>
-</span>
+ <div class="row pad">
+      <div class="row">
+        <div class="input-field col s6">
+          <input id="phone" type="text" class="validate">
+          <label for="phone">phone</label>
+        </div>
+        <div class="input-field col s6">
+          <input id="delay" type="text" class="validate">
+          <label for="delay">delay</label>
+        </div>
+      </div>
+      <div class="row">
+      	<button class="btn waves-effect waves-light" onclick="submit()">Submit
+  		</button>
+      </div>
+ </div>
 
-    
+<div class="pad">    
 <table id="tbl" class="pure-table">	<thead>  </thead> <tbody> </tbody> </table>
-
+</div>
 <script>
 $("#tbl").load(loadtable());
 </script
