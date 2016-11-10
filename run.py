@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, url_for, redirect
+from flask import Flask, request, render_template, url_for, redirect, abort
 import twilio.twiml
 import os
 from twilio.rest import TwilioRestClient
@@ -8,7 +8,7 @@ from CallRecord import CallRecord
 
 account_sid = "AC78494ca3414bae8d75f682eb596a6fbb"
 auth_token = "d4c4cf67ee7e13c86169026fe5fdc412"
-url_path = "https://moseleyfizz.herokuapp.com/call"
+url_path = "https://moseleyfizz.herokuapp.com/call/"
 phone = "+13158025153"
 
 client = TwilioRestClient(account_sid, auth_token)
@@ -34,7 +34,7 @@ def render_static(page_name):
 @app.route("/call/", methods=['GET', 'POST'])
 def hello():
     if not validate(request):
-        return redirect(url_for('index'))
+        return abort(401)
 
     resp = twilio.twiml.Response()
     with resp.gather(finishOnKey="#", action='/fizz', method="POST") as g:
