@@ -92,16 +92,18 @@ def make_call():
     from_=phone)
     return 'sucess'
 
-def scheduledCall(call):
+def scheduledCall(idn):
+    call = db.session.query(CallRecord).filter(CallRecord.idn == idn).first()
     print "making call " + str(call.idn)
     call = client.calls.create(url=url_path+"call/"+str(call.idn)+"/", to=call.phone, from_=phone)
-    db.session.query(CallRecord).filter(CallRecord.idn == call.idn).update({"completed": True})
+    db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
     db.session.commit()
 
-def replayCall(call):
+def replayCall(idn):
+    call = db.session.query(CallRecord).filter(CallRecord.idn == idn).first()
     print "making replay call " + str(call.idn)
     call = client.calls.create(url=url_path+"fizz/"+str(call.idn)+"/", to=call.phone, from_=phone)
-    db.session.query(CallRecord).filter(CallRecord.idn == call.idn).update({"completed": True})
+    db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
     db.session.commit()
 
 @app.route('/add/', methods=['POST'])
@@ -119,7 +121,7 @@ def remove(idn):
     if call is None:
         return 'error'
     else:
-        db.session.delete(call)
+        db.session.delete(call.idn)
         db.session.commit()
     return 'success'
 
@@ -129,7 +131,7 @@ def replay(idn):
     new_call = CallRecord({'phone':call.phone,'number':call.number})
     db.session.add(new_call)
     db.session.commit()
-    replayCall(new_call)
+    replayCall(new_call.idn)
     return 'success'
 
 
