@@ -21,8 +21,7 @@ client = TwilioRestClient(account_sid, auth_token)
 validator = RequestValidator(auth_token)
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-db = SQLAlchemy(app)
+from CallRecord import db
 
 import logging
 
@@ -70,7 +69,7 @@ def fizz(idn):
         n=rec.number
     else: #check the selected number is number
         n=int(selected_option)
-        db.session.query(CallRecord).filter(CallRecord.id == idn).update({'number': idn})
+        db.session.query(CallRecord).filter(CallRecord.id == idn).update({'number': n})
         db.session.commit()
     ret=""
     for i in range(1, n+1):
@@ -113,21 +112,25 @@ def add():
     sched.add_job(scheduledCall, run_date=time, args=[call])
     return str(call.id)
 
-@app.route('/remove/<id>/', methods=['POST'])
-def remove(id):
-    call = CallRecord.query.filter_by(id=int(id))
+@app.route('/delete/<idn>/', methods=['POST'])
+def remove(idn):
+    call = CallRecord.query.filter(CallRecord.id==int(idn)).first()
     if call is None:
-        return
+        return 'error'
     else:
         db.session.delete(call)
         db.session.commit()
-        return
+    return 'success'
 
-@app.route('/replay/<id>/', methods=['POST'])
-def replay(id):
-    call = CallRecord.query.filter_by(id=int(id))
+@app.route('/replay/<idn>/', methods=['POST'])
+def replay(idn):
+    call = CallRecord.query.filter(CallRecord.id==int(idn)).first()
     new_call = CallRecord({'phone':call.phone,'number':call.number})
+    db.session.add(call)
+    db.session.commit()
     replayCall(call)
+    return 'success'
+
 
 @app.route('/listcalls/', methods=['GET'])
 def listcalls():

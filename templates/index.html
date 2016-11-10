@@ -8,7 +8,7 @@ function loadtabledata(obj){
 	for(var i=0; i<obj.length; i++){
 			if($('#' + obj[i]['id']).length != 0){
 				for(var key in cols){
-					console.log(obj[i]);
+					//console.log(obj[i]);
 					document.getElementById(cols[key] + obj[i]['id']).innerHTML = obj[i][cols[key]];
 				}
 				if(obj[i]['completed']=='False')$("#replay" + obj[i]['id']).hide();
@@ -17,13 +17,13 @@ function loadtabledata(obj){
 
 				$("#tbl tbody").append( "<tr id=" +obj[i]['id'] +">");
 				for(var key in cols){
-					console.log(obj[i]);
+					//console.log(obj[i]);
 					$("#tbl tbody").append( "<td id=" + cols[key] + obj[i]['id'] + ">"+ obj[i][cols[key]] + "</td>");					
 				}
 				
-				$("#tbl tbody").append("<td id=delete" + obj[i]['id'] + "><a href=\"javascript:void();\">delete</a><td>");
+				$("#tbl tbody").append("<td id=delete" + obj[i]['id'] + "><a href=\"javascript:deleteCall("+ obj[i]['id'] + ");\">delete</a><td>");
 
-				$("#tbl tbody").append("<td id=replay" + obj[i]['id'] + "><a href=\"javascript:void();\">replay</a><td>");
+				$("#tbl tbody").append("<td id=replay" + obj[i]['id'] + "><a href=\"javascript:replayCall("+ obj[i]['id'] + ");\">replay</a><td>");
 
 				if(obj[i]['completed']=='False')$("#replay" + obj[i]['id']).hide();
 					
@@ -63,6 +63,14 @@ function createCall(p_var, d_var){
 	$.post("/add/", {phone: p_var, delay:d_var}, function(result){});
 }
 
+function replayCall(id){
+	$.post("/replay/"+id+"/", {}, function(result){});
+}
+
+function deleteCall(id){
+	$.post("/delete/"+id+"/", {}, function(result){});
+}
+
 function submit() {
 	var phone = document.getElementsByName('phone')[0].value;
 	var delay = document.getElementsByName('delay')[0].value;
@@ -88,7 +96,7 @@ setInterval(function(){ refreshtable(); }, 3000);
 <table id="tbl" onload=loadtable();>	<thead>  </thead> <tbody> </tbody> </table>
 
 <script>
-document.getElementById("tbl").ready(loadtable());
+//document.getElementById("tbl").ready(loadtable());
 </script
 </body>
 </html>
