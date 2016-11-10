@@ -48,6 +48,25 @@ def index():
 def render_static(page_name):
     return render_template('%s' % page_name)
 
+
+@app.route("/call/", methods=['GET', 'POST'])
+def inputcall():
+    if not validate(request):
+        return abort(401)
+    call = CallRecord({'phone': request.values['From']})
+    db.session.add(call)
+    db.session.commit()
+    idn = call.idn
+    resp = twilio.twiml.Response()
+    with resp.gather(finishOnKey="#", action=url_path+'fizz/'+str(idn)+"/", method="POST") as g:
+        for i in range(0, 3):
+            g.say("please enter a number followed by pound")
+            g.pause(length=3)    
+        
+    resp.say("hanging up now")
+    return str(resp)
+
+
 @app.route("/call/<idn>/", methods=['GET', 'POST'])
 def hello(idn):
     if not validate(request):
@@ -66,12 +85,16 @@ def hello(idn):
 def fizz(idn):
     if not validate(request):
         return redirect(url_for('index'))
-    db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
+    rec = db.session.query(CallRecord).get(int(idn))
+    # db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
+    if(rec==None):
+        return redirect(url_for('inputcall'))
+    rec.update({"completed": True})
     resp = twilio.twiml.Response()
     selected_option = 1 #default
     if 'Digits' in request.values:
         selected_option = request.values['Digits']
-    rec = db.session.query(CallRecord).get(int(idn))
+    
     n=1
     if(rec.number!=-1):
         n=rec.number

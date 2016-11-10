@@ -47,7 +47,7 @@ class CallRecord(db.Model):
                ","+ "\"phone\" : "     + "\"" + str(self.phone) + "\"" +\
                ","+ "\"delay\" : "     + str(self.delay)+\
                ","+ "\"completed\" : " + "\"" + str(self.completed)+ "\"" +\
-               ","+ "\"number\" : "    + str(self.number)+ "}"
+               ","+ "\"number\" : "    + "\"" + str(self.number if self.number!= -1 else "##") + "\"" + "}"
 
 db.create_all()
 db.session.commit()

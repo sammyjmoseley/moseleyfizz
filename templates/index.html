@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script>
 var cols = ['time', 'phone', 'delay', 'number'];
@@ -46,9 +48,9 @@ function loadtabledata(obj){
 					str =str.concat( "<td id=" + cols[key] + obj[i]['id'] + ">"+ obj[i][cols[key]] + "</td>");					
 				}
 				
-				str = str.concat("<td id=delete" + obj[i]['id'] + "><a href=\"javascript:deleteCall("+ obj[i]['id'] + ");\">delete</a><td>");
+				str = str.concat("<td id=delete" + obj[i]['id'] + "><a href=\"javascript:deleteCall("+ obj[i]['id'] + ");\">delete</a></td>");
 
-				str = str.concat("<td id=replay" + obj[i]['id'] + "><a href=\"javascript:replayCall("+ obj[i]['id'] + ");\">replay</a><td>");
+				str = str.concat("<td><div id=replay" + obj[i]['id'] + "><a href=\"javascript:replayCall("+ obj[i]['id'] + ");\">replay</a></div></td>");
 				str =str.concat( "</tr>");
 
 				if(insertflag==0){
@@ -81,20 +83,26 @@ function refreshtable(){
 }
 
 function loadtable() {
+	
 	$.get( "/listcalls/", function( data ) {
 		var obj = JSON.parse(data);
-		$("#tbl thead").append( "<tr>");
+		str = $("<tr></tr>")
+		//str = str.concat( "<tr>");
 		for (var key in cols) {
-			
-			$("#tbl thead").append( "<td>"+cols[key]+"</td>");
+			console.log(key);
+			str.append($( "<th>"+cols[key]+"</th>"));
 		}
-		$("#tbl thead").append("<td>delete<td>");
-		$("#tbl thead").append("<td>replay<td>");
-		$("#tbl thead").append( "</tr>");
+		str.append($("<th>delete</th>"));
+		str.append($("<th>replay</th>"));
+		//str.append($( "</tr>"));
 
+		$("#tbl thead").html(str);
+		console.log(str);
 		loadtabledata(obj);
  
 	});
+
+
 }
 
 function createCall(p_var, d_var){
@@ -135,7 +143,7 @@ setInterval(function(){ refreshtable(); }, 3000);
 </span>
 
     
-<table id="tbl">	<thead>  </thead> <tbody> </tbody> </table>
+<table id="tbl" class="pure-table">	<thead>  </thead> <tbody> </tbody> </table>
 
 <script>
 $("#tbl").load(loadtable());
