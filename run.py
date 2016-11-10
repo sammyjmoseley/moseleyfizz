@@ -93,13 +93,13 @@ def make_call():
 
 def scheduledCall(call):
     print "making call " + str(call.idn)
-    # call = client.calls.create(url=url_path+"call/"+str(call.idn)+"/", to=call.phone, from_=phone)
+    call = client.calls.create(url=url_path+"call/"+str(call.idn)+"/", to=call.phone, from_=phone)
     db.session.query(CallRecord).filter(CallRecord.idn == call.idn).update({"completed": True})
     db.session.commit()
 
 def replayCall(call):
     print "making replay call " + str(call.idn)
-    # call = client.calls.create(url=url_path+"fizz/"+str(call.idn)+"/", to=call.phone, from_=phone)
+    call = client.calls.create(url=url_path+"fizz/"+str(call.idn)+"/", to=call.phone, from_=phone)
     db.session.query(CallRecord).filter(CallRecord.idn == call.idn).update({"completed": True})
     db.session.commit()
 
