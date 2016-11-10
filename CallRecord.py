@@ -44,7 +44,7 @@ class CallRecord(db.Model):
     def __str__(self):
         return "{"+ "\"id\" : "        + "\"" + str(self.idn)+ "\"" +\
                ","+ "\"time\" : "      + "\"" + str(self.time.strftime("%Y-%m-%d %H:%M:%S"))+ "\"" + \
-               ","+ "\"phone\" : "     + str(self.phone)+\
+               ","+ "\"phone\" : "     + "\"" + str(self.phone) + "\"" +\
                ","+ "\"delay\" : "     + str(self.delay)+\
                ","+ "\"completed\" : " + "\"" + str(self.completed)+ "\"" +\
                ","+ "\"number\" : "    + str(self.number)+ "}"

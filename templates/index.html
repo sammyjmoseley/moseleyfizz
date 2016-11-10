@@ -5,7 +5,31 @@
 <script>
 var cols = ['time', 'phone', 'delay', 'number'];
 function loadtabledata(obj){
+	var rows = ($("#tbl tbody tr").toArray()).sort(function(a, b) {
+  		return parseInt(a.id) - parseInt(b.id);
+	});
+	var j=0;
+
 	for(var i=0; i<obj.length; i++){
+			var insertflag = 0;
+			if(j<rows.length){
+				while (j<rows.length && obj[i]['id']>parseInt(rows[j].id)){ //keep deleting anys elements
+					rows[j].remove(); //delete element j
+					console.log("removing element" + rows[j].id);
+					rows.splice(j, 1);
+					continue;
+				} 
+				if(j>=rows.length) {
+					insertflag=0;
+				} else if (obj[i]['id']== parseInt(rows[j].id)){
+					j++; //going to update element
+				} else if (obj[i]['id']<= parseInt(rows[j].id)){
+					var insertflag = 1;//else insert before element j
+				}
+				
+			} else{
+				insertflag=0;
+			}//append element
 			if($('#' + obj[i]['id']).length != 0){
 				for(var key in cols){
 					//console.log(obj[i]);
@@ -14,21 +38,35 @@ function loadtabledata(obj){
 				if(obj[i]['completed']=='False')$("#replay" + obj[i]['id']).hide();
 				else $("#replay" + obj[i]['id']).show();
 			} else{
-
-				$("#tbl tbody").append( "<tr id=" +obj[i]['id'] +">");
+				var str = "";
+				//$("#tbl tbody").append( "<tr id=" +obj[i]['id'] +">");
+				str= str.concat("<tr id=" +obj[i]['id'] +">");
 				for(var key in cols){
 					//console.log(obj[i]);
-					$("#tbl tbody").append( "<td id=" + cols[key] + obj[i]['id'] + ">"+ obj[i][cols[key]] + "</td>");					
+					str =str.concat( "<td id=" + cols[key] + obj[i]['id'] + ">"+ obj[i][cols[key]] + "</td>");					
 				}
 				
-				$("#tbl tbody").append("<td id=delete" + obj[i]['id'] + "><a href=\"javascript:deleteCall("+ obj[i]['id'] + ");\">delete</a><td>");
+				str = str.concat("<td id=delete" + obj[i]['id'] + "><a href=\"javascript:deleteCall("+ obj[i]['id'] + ");\">delete</a><td>");
 
-				$("#tbl tbody").append("<td id=replay" + obj[i]['id'] + "><a href=\"javascript:replayCall("+ obj[i]['id'] + ");\">replay</a><td>");
+				str = str.concat("<td id=replay" + obj[i]['id'] + "><a href=\"javascript:replayCall("+ obj[i]['id'] + ");\">replay</a><td>");
+				str =str.concat( "</tr>");
+
+				if(insertflag==0){
+					console.log(str);
+					$("#tbl tbody").append(str);
+				} else if(insertflag==1){
+					$("#"+rows[j].id).before(str);
+				}
 
 				if(obj[i]['completed']=='False')$("#replay" + obj[i]['id']).hide();
 					
-				$("#tbl tbody").append( "</tr>");
+				
 			}	
+		}
+
+		for(; j<rows.length; j++){
+			rows[j].remove(); //delete element j
+			console.log("removing element" + rows[j].id);
 		}
 }
 
@@ -61,20 +99,24 @@ function loadtable() {
 
 function createCall(p_var, d_var){
 	$.post("/add/", {phone: p_var, delay:d_var}, function(result){});
+	refreshtable();
 }
 
 function replayCall(id){
 	$.post("/replay/"+id+"/", {}, function(result){});
+	refreshtable();
 }
 
 function deleteCall(id){
 	$.post("/delete/"+id+"/", {}, function(result){});
+	refreshtable();
 }
 
 function submit() {
 	var phone = document.getElementsByName('phone')[0].value;
 	var delay = document.getElementsByName('delay')[0].value;
 	createCall(phone, delay);
+	refreshtable();
 }
 
 setInterval(function(){ refreshtable(); }, 3000);

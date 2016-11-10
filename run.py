@@ -62,6 +62,7 @@ def hello(idn):
 def fizz(idn):
     if not validate(request):
         return redirect(url_for('index'))
+    db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
     resp = twilio.twiml.Response()
     selected_option = 1 #default
     if 'Digits' in request.values:
@@ -84,6 +85,7 @@ def fizz(idn):
             ret += str(i) + " "
 
     resp.say(ret)
+    
 
     return str(resp)
 
@@ -96,16 +98,21 @@ def make_call():
 
 def scheduledCall(idn):
     call = db.session.query(CallRecord).get(int(idn))
+    if(call==None):
+        return
     print "making call " + str(call.idn)
-    call = client.calls.create(url=url_path+"call/"+str(call.idn)+"/", to=call.phone, from_=phone)
-    db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
+    client.calls.create(url=url_path+"call/"+str(call.idn)+"/", to=call.phone, from_=phone)
     db.session.commit()
 
 def replayCall(idn):
     call = db.session.query(CallRecord).get(int(idn))
+    if(call==None):
+        return
     print "making replay call " + str(call.idn)
-    call = client.calls.create(url=url_path+"fizz/"+str(call.idn)+"/", to=call.phone, from_=phone)
-    db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
+    if call.number!=-1:
+        client.calls.create(url=url_path+"fizz/"+str(call.idn)+"/", to=call.phone, from_=phone)
+    else:
+        client.calls.create(url=url_path+"call/"+str(call.idn)+"/", to=call.phone, from_=phone)
     db.session.commit()
 
 @app.route('/add/', methods=['POST'])
@@ -123,7 +130,7 @@ def remove(idn):
     if call is None:
         return 'error'
     else:
-        db.session.delete(call.idn)
+        db.session.delete(call)
         db.session.commit()
     return 'success'
 
