@@ -8,8 +8,16 @@
     padding-bottom: 10px;
     padding-left: 10px;
 }
+
+.pad-button {
+	padding-top: 18px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
@@ -57,9 +65,9 @@ function loadtabledata(obj){
 					str =str.concat( "<td id=" + cols[key] + obj[i]['id'] + ">"+ obj[i][cols[key]] + "</td>");					
 				}
 				
-				str = str.concat("<td id=delete" + obj[i]['id'] + "><a href=\"javascript:deleteCall("+ obj[i]['id'] + ");\">delete</a></td>");
+				str = str.concat("<td id=delete" + obj[i]['id'] + "><a href=\"javascript:deleteCall("+ obj[i]['id'] + ");\"><i class=\"material-icons\">delete</i></a></td>");
 
-				str = str.concat("<td><div id=replay" + obj[i]['id'] + "><a href=\"javascript:replayCall("+ obj[i]['id'] + ");\">replay</a></div></td>");
+				str = str.concat("<td><div id=replay" + obj[i]['id'] + "><a href=\"javascript:replayCall("+ obj[i]['id'] + ");\"><i class=\"material-icons\">replay</i></a></div></td>");
 				str =str.concat( "</tr>");
 
 				if(insertflag==0){
@@ -79,6 +87,50 @@ function loadtabledata(obj){
 			rows[j].remove(); //delete element j
 			console.log("removing element" + rows[j].id);
 		}
+}
+
+function phonenumber(inputtxt) {
+  var phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+  if(inputtxt.match(phoneno)) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+function phone(){
+	console.log("executed");
+	if(phonenumber(document.getElementById("phone").value)){
+		$("#phone").addClass("valid").removeClass("invalid");
+	} else{
+		$("#phone").addClass("invalid").removeClass("valid");
+	}
+	if(document.getElementById("phone").value==""){
+		$("#phone").removeClass("valid invalid")
+	}
+}
+
+function delaynumber(inputtxt) {
+  var phoneno = /^\d+$/;
+  if(inputtxt.match(phoneno)) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+function delay(){
+	console.log("executed");
+	if(delaynumber(document.getElementById("delay").value)){
+		$("#delay").addClass("valid").removeClass("invalid");
+	} else{
+		$("#delay").addClass("invalid").removeClass("valid");
+	}
+	if(document.getElementById("delay").value==""){
+		$("#delay").removeClass("valid invalid")
+	}
 }
 
 function refreshtable(){
@@ -115,6 +167,10 @@ function loadtable() {
 }
 
 function createCall(p_var, d_var){
+	if($("#delay").hasClass("invalid") || $("#phone").hasClass("invalid")){
+		alert("please enter phone: XXX XXX-XXXX and delay(sec) as positive integer number");
+		return;
+	}
 	$.post("/add/", {phone: p_var, delay:d_var}, function(result){});
 	refreshtable();
 }
@@ -143,20 +199,27 @@ setInterval(function(){ refreshtable(); }, 3000);
 </script>
 </head>
 <body>
- <div class="row pad">
+ <div id = "navbar-fixed" class="row pad section" style="height: 150;">
+ 	  <nav>
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo">Sammy Moseley's Fizz Buzz App</a>
+      </ul>
+    </div>
+  </nav>
+        
       <div class="row">
-        <div class="input-field col s6">
-          <input id="phone" type="text" class="validate">
-          <label for="phone">phone</label>
+        <div class="input-field col s5">
+          <input id="phone" type="tel" onchange="phone()">
+          <label for="phone" data-error="wrong" data-success="right">phone #</label>
         </div>
-        <div class="input-field col s6">
-          <input id="delay" type="text" class="validate">
-          <label for="delay">delay</label>
+        <div class="input-field col s5">
+          <input id="delay" type="text" onchange="delay()">
+          <label for="delay" data-error="wrong" data-success="right">delay (sec)</label>
         </div>
-      </div>
-      <div class="row">
-      	<button class="btn waves-effect waves-light" onclick="submit()">Submit
+        <div class="pad-button">
+        <button class="btn waves-effect waves-light" onclick="submit()">Submit
   		</button>
+        </div>
       </div>
  </div>
 
