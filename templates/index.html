@@ -23,6 +23,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
 <script>
 var cols = ['time', 'phone', 'delay', 'number'];
+
+/**
+Loads table rows
+Deletes, appends, and updates records from the database
+no need to refresh page, does it automatically for you!
+**/
 function loadtabledata(obj){
 	var rows = ($("#tbl tbody tr").toArray()).sort(function(a, b) {
   		return parseInt(a.id) - parseInt(b.id);
@@ -89,6 +95,11 @@ function loadtabledata(obj){
 		}
 }
 
+/**
+checks if it is a valid phonenumber
+inputtxt: string representation of phone number
+returns true if valid
+**/
 function phonenumber(inputtxt) {
   var phoneno = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
   if(inputtxt.match(phoneno)) {
@@ -99,6 +110,10 @@ function phonenumber(inputtxt) {
   }
 }
 
+/**
+call back function for phone textbox
+makes it valid if has valid text, invalid if invalid text
+**/
 function phone(){
 	console.log("executed");
 	if(phonenumber(document.getElementById("phone").value)){
@@ -111,6 +126,11 @@ function phone(){
 	}
 }
 
+/**
+checks if it is a valid unsigned integer
+inputtxt: string representation of number
+returns true if valid
+**/
 function delaynumber(inputtxt) {
   var phoneno = /^\d+$/;
   if(inputtxt.match(phoneno)) {
@@ -121,6 +141,10 @@ function delaynumber(inputtxt) {
   }
 }
 
+/**
+call back function for delay textbox
+makes it valid if has valid text, invalid if invalid text
+**/
 function delay(){
 	console.log("executed");
 	if(delaynumber(document.getElementById("delay").value)){
@@ -133,6 +157,9 @@ function delay(){
 	}
 }
 
+/**
+refresh table method
+**/
 function refreshtable(){
 	$.get( "/listcalls/", function( data ) {
 		var cols = ['time', 'phone', 'delay']
@@ -143,6 +170,10 @@ function refreshtable(){
 	});
 }
 
+/**
+load table method
+adds table headers
+**/
 function loadtable() {
 	
 	$.get( "/listcalls/", function( data ) {
@@ -162,10 +193,11 @@ function loadtable() {
 		loadtabledata(obj);
  
 	});
-
-
 }
 
+/**
+add call method
+**/
 function createCall(p_var, d_var){
 	if($("#delay").hasClass("invalid") || $("#phone").hasClass("invalid")){
 		alert("please enter phone: XXX XXX-XXXX and delay(sec) as positive integer number");
@@ -174,17 +206,25 @@ function createCall(p_var, d_var){
 	$.post("/add/", {phone: p_var, delay:d_var}, function(result){});
 	refreshtable();
 }
-
+/**
+replay call method
+**/
 function replayCall(id){
 	$.post("/replay/"+id+"/", {}, function(result){});
 	refreshtable();
 }
 
+/**
+delete call method
+**/
 function deleteCall(id){
 	$.post("/delete/"+id+"/", {}, function(result){});
 	refreshtable();
 }
 
+/**
+submit button method, prepare for add createCall method call
+**/
 function submit() {
 	var phone = document.getElementById('phone').value;
 	var delay = document.getElementById('delay').value;
@@ -192,6 +232,9 @@ function submit() {
 	refreshtable();
 }
 
+/**
+set repeating refresh of table
+**/
 setInterval(function(){ refreshtable(); }, 3000);
 
 
@@ -199,14 +242,14 @@ setInterval(function(){ refreshtable(); }, 3000);
 </script>
 </head>
 <body>
- <div id = "navbar-fixed" class="row pad section" style="height: 150;">
+ <div id = "navbar-fixed" class="row pad section" style="height: 130px;">
  	  <nav>
     <div class="nav-wrapper">
-      <a href="#" class="brand-logo">Sammy Moseley's Fizz Buzz App</a>
+      <a href="#" class="brand-logo">  Sammy Moseley's Fizz Buzz App</a>
       </ul>
     </div>
-  </nav>
-        
+  </nav>  
+  <p>Place a call by entering a phone numeber and a delay time in seconds. You can replay a call by clicking the replay on the button, circle arrow. This is only available once the call has been recieved and user has entered a number. Delete a record by pushing delete button.</p>
       <div class="row">
         <div class="input-field col s5">
           <input id="phone" type="tel" onchange="phone()">

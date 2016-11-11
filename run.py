@@ -34,6 +34,7 @@ h = logging.StreamHandler()
 h.setFormatter(fmt)
 log.addHandler(h)
 
+#validates Twilio specific methods (default True right now, problem with X-Twilio-Signature)
 def validate(req):
     return True;
     if not 'X-Twilio-Signature' in req.headers:
@@ -48,7 +49,7 @@ def index():
 def render_static(page_name):
     return render_template('%s' % page_name)
 
-
+#method for input call - if user initiates call
 @app.route("/call/", methods=['GET', 'POST'])
 def inputcall():
     if not validate(request):
@@ -66,11 +67,16 @@ def inputcall():
     resp.say("hanging up now")
     return str(resp)
 
-
+#method for output call - my app initiates call
+#idn is primary key for CallRecord
 @app.route("/call/<idn>/", methods=['GET', 'POST'])
 def hello(idn):
     if not validate(request):
         return abort(401)
+
+   #if the record doesn't exist, redirect as new call
+    if(db.session.query(CallRecord).get(int(idn))==None): 
+        return redirect(url_for('inputcall'))
 
     resp = twilio.twiml.Response()
     with resp.gather(finishOnKey="#", action=url_path+'fizz/'+str(idn)+"/", method="POST") as g:
@@ -81,13 +87,18 @@ def hello(idn):
     resp.say("hanging up now")
     return str(resp)
 
+#fizz buzz implementation, after user presses number
+#idn is pimary key for Call Record
 @app.route('/fizz/<idn>/', methods=['GET', 'POST'])
 def fizz(idn):
     if not validate(request):
         return redirect(url_for('index'))
     rec = db.session.query(CallRecord).get(int(idn))
-    if(rec==None):
+    
+    #if the record doesn't exist, redirect as new call
+    if(rec==None): 
         return redirect(url_for('inputcall'))
+
     db.session.query(CallRecord).filter(CallRecord.idn == idn).update({"completed": True})
     resp = twilio.twiml.Response()
     selected_option = 1 #default
@@ -104,24 +115,24 @@ def fizz(idn):
     ret=""
     for i in range(1, n+1):
         if(i%3==0):
-            ret += "Fizz "
+            ret += "Fizz " #fizzy fizz fizz fizz
         if(i%5==0):
-            ret += "Buzz "
-        if(i%3!=0 or i%5!=0):
+            ret += "Buzz " #buzzy buzz buzz buzz
+        if(i%3!=0 and i%5!=0):
             ret += str(i) + " "
 
     resp.say(ret)
-    
-
     return str(resp)
 
-@app.route('/make_call/', methods=['POST'])
-def make_call():
-    call = client.calls.create(url=url_path,
-    to=request.values['phone'],
-    from_=phone)
-    return 'sucess'
 
+# @app.route('/make_call/', methods=['POST'])
+# def make_call():
+#     call = client.calls.create(url=url_path,
+#     to=request.values['phone'],
+#     from_=phone)
+#     return 'sucess'
+
+#schedule call with delay
 def scheduledCall(idn):
     call = db.session.query(CallRecord).get(int(idn))
     if(call==None):
@@ -130,6 +141,7 @@ def scheduledCall(idn):
     client.calls.create(url=url_path+"call/"+str(call.idn)+"/", to=call.phone, from_=phone)
     db.session.commit()
 
+#replay call
 def replayCall(idn):
     call = db.session.query(CallRecord).get(int(idn))
     if(call==None):
@@ -141,8 +153,14 @@ def replayCall(idn):
         client.calls.create(url=url_path+"call/"+str(call.idn)+"/", to=call.phone, from_=phone)
     db.session.commit()
 
+#add call
 @app.route('/add/', methods=['POST'])
 def add():
+    if not 'phone' in request.values:
+        return "-1"
+    if not request.values['delay'].isdigit():
+        return "-1"
+
     call = CallRecord(request.values)
     db.session.add(call)
     db.session.commit()
@@ -150,6 +168,8 @@ def add():
     sched.add_job(scheduledCall, run_date=time, args=[call.idn])
     return str(call.idn)
 
+
+#remove call record, call won't be placed if call record is deleted
 @app.route('/delete/<idn>/', methods=['POST'])
 def remove(idn):
     call = CallRecord.query.get(int(idn))
@@ -160,6 +180,7 @@ def remove(idn):
         db.session.commit()
     return 'success'
 
+#replay call immediately
 @app.route('/replay/<idn>/', methods=['POST'])
 def replay(idn):
     call = CallRecord.query.get(int(idn))
@@ -169,7 +190,7 @@ def replay(idn):
     replayCall(new_call.idn)
     return 'success'
 
-
+#list calls in json (used for web front end)
 @app.route('/listcalls/', methods=['GET'])
 def listcalls():
     ls = CallRecord.query.order_by(CallRecord.idn)

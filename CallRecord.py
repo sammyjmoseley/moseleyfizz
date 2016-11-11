@@ -9,11 +9,11 @@ db = SQLAlchemy(app)
 
 class CallRecord(db.Model):
     idn = db.Column(db.Integer, primary_key=True)
-    time = db.Column(db.DateTime)
-    phone = db.Column(db.String(20))
-    delay = db.Column(db.Integer)
-    completed = db.Column(db.Boolean)
-    number = db.Column(db.Integer)
+    time = db.Column(db.DateTime)       #time the request was made (or call recieved)
+    phone = db.Column(db.String(20))    #phone number
+    delay = db.Column(db.Integer)       #delay amount in seconds
+    completed = db.Column(db.Boolean)   #boolean flag if call was made
+    number = db.Column(db.Integer)      #number pressed, -1 if no record yet
 
     def __init__(self, arg):
         if not 'time' in arg:
